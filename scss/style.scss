@@ -1,0 +1,29 @@
+#video-list-container {
+  width: 80%;
+  max-width: 1280px;
+  margin: 0 auto;
+}
+
+.video-tile {
+  width: 215px;
+  height: 230px;
+  border-radius: 5px;
+  border: 1px solid black;
+  display: inline-block;
+  position: relative;
+  margin: 5px;
+}
+
+.video-image {
+  position: relative;
+}
+
+.video-image img {
+  position: absolute;
+  width: 100%;
+}
+
+.video-description {
+  position: absolute;
+  bottom: 0px;
+}
