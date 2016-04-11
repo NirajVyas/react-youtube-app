@@ -17,15 +17,22 @@ var VideoCardList = React.createClass({
     var firstScriptTag = document.getElementsByTagName('script')[0];
     firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
 
-    $.getJSON("https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=50&playlistId=UU29ju8bIPH5as8OGnQzwJyA&key=AIzaSyCjbqecI19O7sF6ASXXMEC2JaCz2t0LwAg", function(results) {
+    $('#loading-gif').show();
+
+    $.getJSON("https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=5&playlistId=UU29ju8bIPH5as8OGnQzwJyA&key=AIzaSyCjbqecI19O7sF6ASXXMEC2JaCz2t0LwAg", function(results) {
+
+      $('#loading-gif').hide();
+
+      $(".load-more-btn").val(results.nextPageToken);
 
       console.log(results)
 
       for (var i = 0; i < results.items.length; i++) {
         self.videoData(results.items[i].snippet.description.substring(0, 50), results.items[i].snippet.resourceId.videoId, results.items[i].snippet.thumbnails.medium.url);
-      }
+      };
 
     })
+
   },
 
   uniqueKey: function() {
@@ -34,6 +41,7 @@ var VideoCardList = React.createClass({
   },
 
   videoData: function(description, videoID, thumbnail) {
+    console.log("videoData function")
     var arr = this.state.videos;
     arr.push({
       id: this.uniqueKey(),
@@ -74,6 +82,7 @@ var VideoCardList = React.createClass({
                 onUserInput={this.handleUserInput}/>
 
               {this.state.videos.map(this.eachVideo)}
+              <LoadMoreButton />
           </div>
     );
   }
@@ -125,6 +134,58 @@ var SearchBar = React.createClass({
     );
   }
 });
+
+var LoadMoreButton = React.createClass({
+  loadMoreVideos: function() {
+    console.log("loadMoreVideos");
+
+    var self = this;
+
+    $.ajax({
+      cache: false,
+      data: $.extend({
+          key: 'AIzaSyCjbqecI19O7sF6ASXXMEC2JaCz2t0LwAg',
+          part: 'snippet',
+          type:'video'
+      }, {
+        maxResults: 5,
+        pageToken: $(".load-more-btn").val()
+      }),
+      dataType: 'json',
+      type: 'GET',
+      timeout: 5000,
+      url: 'https://www.googleapis.com/youtube/v3/search'
+    }).done(function(data) {
+      console.log("data: ", data)
+       if (typeof data.nextPageToken === "undefined") {
+        $("#nextTokenPrev").hide();
+      } else {
+        $("#nextTokenPrev").show();
+      }
+
+      $("#pageTokenNext").val(data.nextPageToken);
+
+      for (var i = 0; i < data.items.length; i++) {
+        self.refs.videoData(data.items[i].snippet.description.substring(0, 50), data.items[i].snippet.resourceId.videoId, data.items[i].snippet.thumbnails.medium.url);
+      };
+
+    })
+
+
+  },
+
+  render: function() {
+    return (
+      <button className="load-more-btn" 
+        id="pageTokenNext" 
+        value="" 
+        onClick={this.loadMoreVideos}
+        refs="nextVideos">
+      Load More
+      </button>
+    )
+  }
+})
 
 ReactDOM.render(<VideoCardList />, document.getElementById('video-list-container'));
 // ReactDOM.render(<SearchBar />, document.getElementById('search-container'));
