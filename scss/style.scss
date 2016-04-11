@@ -23,3 +23,17 @@
   width: 100%;
 }
 
+#loading-gif {
+  width: 100%;
+  text-align: center;
+  position: absolute;
+  z-index: 10;
+  top: 300px;
+}
+
+#load-more-btn {
+  text-align: center;
+  border: 1px solid black;
+  padding: 10px;
+  cursor: pointer;
+}
